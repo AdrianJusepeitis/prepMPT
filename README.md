@@ -1,10 +1,10 @@
-# FastDMinR
+# prepMPT
 prepMPT is a package allowing you to prepare IAT data to estimate MPT models.
 
 ## Installation
 ------------
 
-To install FastDMinR, run:
+To install prepMPT, run:
 
 ``` r
 install.packages("devtools")

@@ -1,0 +1,12 @@
+Package: prepMPT
+Type: Package
+Title: Prepare IAT data to estimate MPT models
+Version: 0.1.0
+Author: Adrian Jusepeitis
+Maintainer: Adrian Jusepeitis <adrian.jusepeitis@uni-jena.de>
+Description: Prepare IAT data to estimate MPT models.
+Imports: data.table, reshape2, MPTinR, tidyverse
+License: GNU GPLv3
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.1.1

@@ -47,7 +47,6 @@ prep_ReAL <- function(data,
                       AttributeCat1,
                       AttributeCat2){
 
-
   if(class(data)[1] != "data.frame") stop('Data must be a data.frame!')
   if(all(c(Subject,Compatibility,StimulusCat,Correct)  %in% names(data)) == FALSE  ) stop('Check column names!')
   if(setequal(c(TargetCat1,TargetCat2,AttributeCat1,AttributeCat2), unique(data[[StimulusCat]])) == FALSE  ) stop('Check category names!')
@@ -125,20 +124,16 @@ prep_ReAL <- function(data,
   ReAL_data$SwitchCostDif <- SwitchingCosts_Incomp - SwitchingCosts_Comp
 
   colnames(ReAL_data) <- c("Subject",1:32,"Re_in_comp","Re_in_incomp","SwitchCostDif")
-  # SUBSETS IN LIST
-  # f_data <- list()
-  #
-  # f_data$Re_in_comp <- ReAL_data[ReAL_data$Re_in_comp]
-  # colnames(f_data$Re_in_comp) <- c("Subject",1:32,"Re_in_comp","Re_in_incomp","SwitchCostDif")
-  # f_data$Re_in_incomp <- ReAL_data[ReAL_data$Re_in_incomp]
-  # colnames(f_data$Re_in_incomp) <- c("Subject",1:32,"Re_in_comp","Re_in_incomp")
+  class(ReAL_data) <- "data.frame"
 
-  print(nrow(ReAL_data), "subjects,",
-        sum(ReAL_data$Re_in_comp), "recoded in the compatible block,",
-        unique(rowSums(ReAL_data[,paste0(1:32)])), "Trials.")
+  print(
+    paste(
+      nrow(ReAL_data), "subjects,",
+      sum(ReAL_data$Re_in_comp), "recoded in the compatible block,",
+      unique(rowSums(ReAL_data[,paste0(1:32)])), "Trials."))
 
 
-return(ReAL_data)
+  return(ReAL_data)
 }
 
 #' Preparing Data for Quad Model

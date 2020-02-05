@@ -124,7 +124,7 @@ prep_ReAL <- function(data,
   ReAL_data$Re_in_incomp <- SwitchingCosts_Incomp < SwitchingCosts_Comp
   ReAL_data$SwitchCostDif <- SwitchingCosts_Incomp - SwitchingCosts_Comp
 
-
+  colnames(ReAL_data) <- c("Subject",1:32,"Re_in_comp","Re_in_incomp","SwitchCostDif")
   # SUBSETS IN LIST
   # f_data <- list()
   #

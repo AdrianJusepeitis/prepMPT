@@ -133,12 +133,12 @@ prep_ReAL <- function(data,
   # f_data$Re_in_incomp <- ReAL_data[ReAL_data$Re_in_incomp]
   # colnames(f_data$Re_in_incomp) <- c("Subject",1:32,"Re_in_comp","Re_in_incomp")
 
-  print(paste(nrow(rbind(f_data$Re_in_incomp,f_data$Re_in_comp)), "subjects,",
-              nrow(rbind(f_data$Re_in_comp)), "recoded in the compatible block,",
-              unique(rowSums(rbind(f_data$Re_in_incomp[,paste0(1:32)],f_data$Re_in_comp[,paste0(1:32)]))), "Trials.")
+  print(nrow(ReAL_data), "subjects,",
+        sum(ReAL_data$Re_in_comp), "recoded in the compatible block,",
+        unique(rowSums(ReAL_data[,paste0(1:32)])), "Trials.")
   )
 
-  return(ReAL_data)
+return(ReAL_data)
 }
 
 #' Preparing Data for Quad Model

@@ -136,7 +136,7 @@ prep_ReAL <- function(data,
   print(nrow(ReAL_data), "subjects,",
         sum(ReAL_data$Re_in_comp), "recoded in the compatible block,",
         unique(rowSums(ReAL_data[,paste0(1:32)])), "Trials.")
-  )
+
 
 return(ReAL_data)
 }

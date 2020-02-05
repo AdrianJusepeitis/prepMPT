@@ -30,7 +30,7 @@ require(tidyverse)
 #' @export
 #' @examples
 #' prep_ReAL()
-#' 
+#'
 prep_ReAL <- function(data,
                       Subject,
                       TaskSwitch = NULL,
@@ -46,97 +46,99 @@ prep_ReAL <- function(data,
                       TargetCat2,
                       AttributeCat1,
                       AttributeCat2){
-  
-  
+
+
   if(class(data)[1] != "data.frame") stop('Data must be a data.frame!')
   if(all(c(Subject,Compatibility,StimulusCat,Correct)  %in% names(data)) == FALSE  ) stop('Check column names!')
   if(setequal(c(TargetCat1,TargetCat2,AttributeCat1,AttributeCat2), unique(data[[StimulusCat]])) == FALSE  ) stop('Check category names!')
   if(is.null(TaskSwitch) & is.null(Trial)) stop('Specify either TaskSwitch or Trial!')
-  
-  
+
+
   tmp <- data.table(Subject = data[[Subject]],
                     Compatibility = factor(data[[Compatibility]], levels = c(1,2), labels = c("Compatible","Incompatible")),
                     Accuracy = data[[Correct]])
-  
+
   tmp$StimulusCat[data[[StimulusCat]] == TargetCat1] <- "TargetCat1"
   tmp$StimulusCat[data[[StimulusCat]] == TargetCat2] <- "TargetCat2"
-  
+
   tmp$StimulusCat[data[[StimulusCat]] == AttributeCat1] <- "AttributeCat1"
   tmp$StimulusCat[data[[StimulusCat]] == AttributeCat2] <- "AttributeCat2"
-  
+
   # Task Switch
   if(is.null(TaskSwitch)){
-    
+
     tmp$Task <- ifelse(tmp$StimulusCat == "AttributeCat1" | tmp$StimulusCat == "AttributeCat2", "Attribute", "Target")
-    
+
     tmp$TaskSwitch <- numeric()
-    
+
     for (i in 2:length(tmp$Subject)) {
       if(tmp$Task[i] == tmp$Task[i-1]){tmp$TaskSwitch[i] <- "TR"}
       else{tmp$TaskSwitch[i] <- "TS"}
       if(data[[Trial]][i] < data[[Trial]][i-1]){tmp$TaskSwitch[i] <- NA}
     }
   } else{
-    
+
     tmp$TaskSwitch <- data[[TaskSwitch]]
     tmp$TaskSwitch[data[[TaskSwitch]] == Switch] <- "TS"
     tmp$TaskSwitch[data[[TaskSwitch]] == Repetition] <- "TR"
-    
+
   }
-  
+
   ReAL_data <- tmp[is.na(TaskSwitch) == FALSE,
                    .(correct = sum(Accuracy == 1),
                      incorrect = sum(Accuracy == 0)),
                    by = c("Subject", "StimulusCat", "Compatibility", "TaskSwitch")]
-  
+
   # -> WIDE FORMAT
   ReAL_data <- dcast.data.table(ReAL_data, Subject ~ StimulusCat + TaskSwitch + Compatibility, value.var = c("incorrect","correct"), sep = " ")
-  
+
   # SORT
   ReAL_order <- c("Subject",
-                  
+
                   "correct TargetCat1 TR Compatible", "incorrect TargetCat1 TR Compatible", "correct TargetCat1 TR Incompatible", "incorrect TargetCat1 TR Incompatible",
                   "correct TargetCat2 TR Compatible", "incorrect TargetCat2 TR Compatible", "correct TargetCat2 TR Incompatible", "incorrect TargetCat2 TR Incompatible",
                   "correct AttributeCat1 TR Compatible", "incorrect AttributeCat1 TR Compatible", "correct AttributeCat1 TR Incompatible", "incorrect AttributeCat1 TR Incompatible",
                   "correct AttributeCat2 TR Compatible", "incorrect AttributeCat2 TR Compatible", "correct AttributeCat2 TR Incompatible","incorrect AttributeCat2 TR Incompatible",
-                  
+
                   "correct TargetCat1 TS Compatible", "incorrect TargetCat1 TS Compatible", "correct TargetCat1 TS Incompatible", "incorrect TargetCat1 TS Incompatible",
                   "correct TargetCat2 TS Compatible", "incorrect TargetCat2 TS Compatible", "correct TargetCat2 TS Incompatible", "incorrect TargetCat2 TS Incompatible",
                   "correct AttributeCat1 TS Compatible", "incorrect AttributeCat1 TS Compatible", "correct AttributeCat1 TS Incompatible", "incorrect AttributeCat1 TS Incompatible",
                   "correct AttributeCat2 TS Compatible", "incorrect AttributeCat2 TS Compatible", "correct AttributeCat2 TS Incompatible","incorrect AttributeCat2 TS Incompatible")
-  
+
   ReAL_data <- ReAL_data[,..ReAL_order]
-  
-  
-  
+
+
+
   # RECODING INDICATOR TO SUBSET
   SwitchingCosts_Comp <- tmp[is.na(TaskSwitch) == FALSE,
                              .(SwitchingCosts = mean(Accuracy[TaskSwitch == "TS" & Compatibility == "Compatible"] == 0)
                                - mean(Accuracy[TaskSwitch == "TR" & Compatibility == "Compatible"] == 0)),
                              by = "Subject"][,2]
-  
+
   SwitchingCosts_Incomp <- tmp[is.na(TaskSwitch) == FALSE,
                                .(SwitchingCosts = mean(Accuracy[TaskSwitch == "TS" & Compatibility == "Incompatible"] == 0)
                                  - mean(Accuracy[TaskSwitch == "TR" & Compatibility == "Incompatible"] == 0)),
                                by = "Subject"][,2]
-  
+
   ReAL_data$Re_in_comp <- SwitchingCosts_Incomp >= SwitchingCosts_Comp
   ReAL_data$Re_in_incomp <- SwitchingCosts_Incomp < SwitchingCosts_Comp
-  
+  ReAL_data$SwitchCostDif <- SwitchingCosts_Incomp - SwitchingCosts_Comp
+
+
   # SUBSETS IN LIST
-  f_data <- list()
-  
-  f_data$Re_in_comp <- ReAL_data[ReAL_data$Re_in_comp]
-  colnames(f_data$Re_in_comp) <- c("Subject",1:32,"Re_in_comp","Re_in_incomp")
-  f_data$Re_in_incomp <- ReAL_data[ReAL_data$Re_in_incomp]
-  colnames(f_data$Re_in_incomp) <- c("Subject",1:32,"Re_in_comp","Re_in_incomp")
-  
+  # f_data <- list()
+  #
+  # f_data$Re_in_comp <- ReAL_data[ReAL_data$Re_in_comp]
+  # colnames(f_data$Re_in_comp) <- c("Subject",1:32,"Re_in_comp","Re_in_incomp","SwitchCostDif")
+  # f_data$Re_in_incomp <- ReAL_data[ReAL_data$Re_in_incomp]
+  # colnames(f_data$Re_in_incomp) <- c("Subject",1:32,"Re_in_comp","Re_in_incomp")
+
   print(paste(nrow(rbind(f_data$Re_in_incomp,f_data$Re_in_comp)), "subjects,",
               nrow(rbind(f_data$Re_in_comp)), "recoded in the compatible block,",
               unique(rowSums(rbind(f_data$Re_in_incomp[,paste0(1:32)],f_data$Re_in_comp[,paste0(1:32)]))), "Trials.")
   )
-  
-  return(f_data)
+
+  return(ReAL_data)
 }
 
 #' Preparing Data for Quad Model
@@ -169,47 +171,47 @@ prep_Quad <- function(data,
                       TargetCat2,
                       AttributeCat1,
                       AttributeCat2){
-  
-  
+
+
   if(class(data)[1] != "data.frame") stop('Data must be a data.frame!')
   if(all(c(Subject,Compatibility,StimulusCat,Correct)  %in% names(data)) == FALSE  ) stop('Check column names!')
   if(setequal(c(TargetCat1,TargetCat2,AttributeCat1,AttributeCat2), unique(data[[StimulusCat]])) == FALSE  ) stop('Check category names!')
-  
+
   tmp <- data.table(Subject = data[[Subject]],
                     Compatibility = factor(data[[Compatibility]], levels = c(1,2), labels = c("Compatible","Incompatible")),
                     Accuracy = data[[Correct]])
-  
-  
+
+
   # tmp <- tmp[data[[Trial]]!= min(data[[Trial]])]
-  
+
   tmp$StimulusCat[data[[StimulusCat]] == TargetCat1] <- "TargetCat1"
   tmp$StimulusCat[data[[StimulusCat]] == TargetCat2] <- "TargetCat2"
-  
+
   tmp$StimulusCat[data[[StimulusCat]] == AttributeCat1] <- "AttributeCat1"
   tmp$StimulusCat[data[[StimulusCat]] == AttributeCat2] <- "AttributeCat2"
-  
+
   Quad_data <- tmp[,.(correct = sum(Accuracy == 1),
                       incorrect = sum(Accuracy == 0)),
                    by = c("Subject", "StimulusCat", "Compatibility")]
-  
+
   # -> WIDE FORMAT
   Quad_data <- dcast.data.table(Quad_data, Subject ~ StimulusCat + Compatibility, value.var = c("incorrect","correct"), sep = " ")
-  
+
   # SORT
   Quad_order <- c("Subject",
-                  
+
                   "correct TargetCat1 Compatible", "incorrect TargetCat1 Compatible", "correct TargetCat2 Compatible", "incorrect TargetCat2 Compatible",
                   "correct AttributeCat1 Compatible", "incorrect AttributeCat1 Compatible","correct AttributeCat2 Compatible", "incorrect AttributeCat2 Compatible",
                   "correct TargetCat1 Incompatible", "incorrect TargetCat1 Incompatible", "correct TargetCat2 Incompatible", "incorrect TargetCat2 Incompatible",
                   "correct AttributeCat1 Incompatible", "incorrect AttributeCat1 Incompatible","correct AttributeCat2 Incompatible","incorrect AttributeCat2 Incompatible")
-  
+
   Quad_data <- Quad_data[,..Quad_order]
-  
+
   colnames(Quad_data) <- c("Subject", 1:16)
-  
+
   print(paste(nrow(Quad_data), "subjects,",
               unique(rowSums(Quad_data[,paste0(1:16)])), "Trials.")
   )
-  
+
   return(Quad_data)
 }

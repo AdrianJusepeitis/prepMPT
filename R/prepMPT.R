@@ -70,11 +70,16 @@ prep_ReAL <- function(data,
 
     tmp$TaskSwitch <- numeric()
 
-    for (i in 2:length(tmp$Subject)) {
-      if(tmp$Task[i] == tmp$Task[i-1]){tmp$TaskSwitch[i] <- "TR"}
-      else{tmp$TaskSwitch[i] <- "TS"}
-      if(data[[Trial]][i] < data[[Trial]][i-1]){tmp$TaskSwitch[i] <- NA}
-    }
+    # for (i in 2:length(tmp$Subject)) {
+    #   if(tmp$Task[i] == tmp$Task[i-1]){tmp$TaskSwitch[i] <- "TR"}
+    #   else{tmp$TaskSwitch[i] <- "TS"}
+    #   if(data[[Trial]][i] < data[[Trial]][i-1]){tmp$TaskSwitch[i] <- NA}
+    # }
+
+    # vectorization
+    tmp$TaskSwitch <- ifelse(tmp$Task == c(NA,tmp$Task)[-(length(tmp$Task)+1)], "TR", "TS")
+    tmp$TaskSwitch[data[[Trial]] < c(NA,data[[Trial]])[-(length(data[[Trial]])+1)]] <- NA
+
   } else{
 
     tmp$TaskSwitch <- data[[TaskSwitch]]
@@ -123,14 +128,15 @@ prep_ReAL <- function(data,
   ReAL_data$Re_in_incomp <- SwitchingCosts_Incomp < SwitchingCosts_Comp
   ReAL_data$SwitchCostDif <- SwitchingCosts_Incomp - SwitchingCosts_Comp
 
-  colnames(ReAL_data) <- c("Subject",1:32,"Re_in_comp","Re_in_incomp","SwitchCostDif")
+
+  colnames(ReAL_data) <- c("Subject",paste0("F",sprintf("%02d",1:32)),"Re_in_comp","Re_in_incomp","SwitchCostDif")
   class(ReAL_data) <- "data.frame"
 
   print(
     paste(
       nrow(ReAL_data), "subjects,",
       sum(ReAL_data$Re_in_comp), "recoded in the compatible block,",
-      unique(rowSums(ReAL_data[,paste0(1:32)])), "Trials."))
+      unique(rowSums(ReAL_data[,paste0(paste0("F",sprintf("%02d",1:32)))])), "Trials."))
 
 
   return(ReAL_data)

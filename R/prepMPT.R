@@ -70,12 +70,6 @@ prep_ReAL <- function(data,
 
     tmp$TaskSwitch <- numeric()
 
-    # for (i in 2:length(tmp$Subject)) {
-    #   if(tmp$Task[i] == tmp$Task[i-1]){tmp$TaskSwitch[i] <- "TR"}
-    #   else{tmp$TaskSwitch[i] <- "TS"}
-    #   if(data[[Trial]][i] < data[[Trial]][i-1]){tmp$TaskSwitch[i] <- NA}
-    # }
-
     # vectorization
     tmp$TaskSwitch <- ifelse(tmp$Task == c(NA,tmp$Task)[-(length(tmp$Task)+1)], "TR", "TS")
     tmp$TaskSwitch[data[[Trial]] < c(NA,data[[Trial]])[-(length(data[[Trial]])+1)]] <- NA
@@ -213,6 +207,8 @@ prep_Quad <- function(data,
   print(paste(nrow(Quad_data), "subjects,",
               unique(rowSums(Quad_data[,paste0(1:16)])), "Trials.")
   )
+  class(Quad_data) <- "data.frame"
+
 
   return(Quad_data)
 }

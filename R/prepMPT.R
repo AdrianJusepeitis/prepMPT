@@ -202,10 +202,10 @@ prep_Quad <- function(data,
 
   Quad_data <- Quad_data[,..Quad_order]
 
-  colnames(Quad_data) <- c("Subject",paste0(1:16))
+  colnames(Quad_data) <- c("Subject",paste0("F",sprintf("%02d",1:16)))
 
   print(paste(nrow(Quad_data), "subjects,",
-              unique(rowSums(Quad_data[,paste0(1:16)])), "Trials.")
+              unique(rowSums(Quad_data[,paste0("F",sprintf("%02d",1:16))])), "Trials.")
   )
   class(Quad_data) <- "data.frame"
 

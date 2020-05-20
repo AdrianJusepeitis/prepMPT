@@ -54,7 +54,7 @@ prep_ReAL <- function(data,
 
 
   tmp <- data.table(Subject = data[[Subject]],
-                    Compatibility = factor(data[[Compatibility]], levels = c(1,2), labels = c("Compatible","Incompatible")),
+                    Compatibility = factor(data[[Compatibility]], levels = c(Compatible,Incompatible), labels = c("Compatible","Incompatible")),
                     Accuracy = data[[Correct]])
 
   tmp$StimulusCat[data[[StimulusCat]] == TargetCat1] <- "TargetCat1"
@@ -173,7 +173,7 @@ prep_Quad <- function(data,
   if(setequal(c(TargetCat1,TargetCat2,AttributeCat1,AttributeCat2), unique(data[[StimulusCat]])) == FALSE  ) stop('Check category names!')
 
   tmp <- data.table(Subject = data[[Subject]],
-                    Compatibility = factor(data[[Compatibility]], levels = c(1,2), labels = c("Compatible","Incompatible")),
+                    Compatibility = factor(data[[Compatibility]], levels = c(Compatible,Incompatible), labels = c("Compatible","Incompatible")),
                     Accuracy = data[[Correct]])
 
 

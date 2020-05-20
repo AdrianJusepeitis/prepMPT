@@ -82,6 +82,10 @@ prep_ReAL <- function(data,
 
   }
 
+  if(sum(tmp$TaskSwitch == "TR", na.rm = TRUE) == 0 | sum(tmp$TaskSwitch == "TS", na.rm = TRUE) == 0){
+    stop("Estimation of the ReAL model needs task repetition and task switch trials!")
+  }
+
   ReAL_data <- tmp[is.na(TaskSwitch) == FALSE,
                    .(correct = sum(Accuracy == 1),
                      incorrect = sum(Accuracy == 0)),

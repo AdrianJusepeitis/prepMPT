@@ -72,7 +72,8 @@ prep_ReAL <- function(data,
 
     # vectorization
     tmp$TaskSwitch <- ifelse(tmp$Task == c(NA,tmp$Task)[-(length(tmp$Task)+1)], "TR", "TS")
-    tmp$TaskSwitch[data[[Trial]] < c(NA,data[[Trial]])[-(length(data[[Trial]])+1)]] <- NA
+    # tmp$TaskSwitch[data[[Trial]] < c(NA,data[[Trial]])[-(length(data[[Trial]])+1)]] <- NA
+    tmp$TaskSwitch[data[[Trial]] == min(data[[Trial]])] <- NA
 
   } else{
 
